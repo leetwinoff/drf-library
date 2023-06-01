@@ -1,10 +1,14 @@
 from django.shortcuts import render
+
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from book_service.models import Book
+from book_service.permissions import IsAdminOrReadOnly
 from book_service.serializers import BookSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = (IsAdminOrReadOnly,)
