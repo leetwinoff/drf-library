@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext as _
 
+from book_service.models import Book
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -33,6 +36,9 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(_("email_address"), unique=True)
+    borrowed_books = models.ManyToManyField(
+        Book, related_name="borrowed_by", blank=True
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -41,5 +47,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-
-
