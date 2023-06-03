@@ -12,7 +12,7 @@ from book_service.models import Book
 from book_service.permissions import IsAdminOrReadOnly
 from book_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
-from borrowing_service.serializers import BorrowingSerializer
+from borrowing_service.serializers import BorrowSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -22,7 +22,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "borrow":
-            return BorrowingSerializer
+            return BorrowSerializer
         return BookSerializer
 
     @action(detail=True, methods=["POST"])
@@ -31,7 +31,9 @@ class BookViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if book.inventory > 0:
-            if user.borrowed_books.filter(id=book.id).exists():
+            if Borrowing.objects.filter(
+                user_id=user, id=book.id, actual_return_date=None
+            ).exists():
                 return Response(
                     {"detail": "You have already borrowed this book"},
                     status=status.HTTP_400_BAD_REQUEST,
