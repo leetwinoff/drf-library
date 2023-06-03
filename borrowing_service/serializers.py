@@ -13,4 +13,13 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "actual_return_date",
             "book_id",
             "user_id",
+            "is_active",
         )
+
+
+class BorrowSerializer(serializers.Serializer):
+    pass
+
+
+class ReturnBookSerializer(serializers.Serializer):
+    pass
