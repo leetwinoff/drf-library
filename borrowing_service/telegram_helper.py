@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 import requests
-
+from django.db.models import Q
 
 from borrowing_service.models import Borrowing
 
@@ -39,3 +40,26 @@ def return_borrowing_notification(borrowing: Borrowing) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {"chat_id": TELEGRAM_CHAT_ID, "text": text}
     requests.post(url, json=params)
+
+
+def send_overdue_notification() -> None:
+    tomorrow = datetime.today() + timedelta(1)
+    check_borrowing = Borrowing.objects.filter(
+        Q(actual_return_date__isnull=True) & Q(expected_return_date=tomorrow)
+    )
+    if check_borrowing:
+        for borrowing in check_borrowing:
+            text = (
+                f"Customer: {borrowing.user_id}\n"
+                f"Borrowed Book: {borrowing.book_id} ends tomorrow\n"
+                f"Expected return date: {borrowing.expected_return_date}\n"
+            )
+
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            params = {"chat_id": TELEGRAM_CHAT_ID, "text": text}
+            requests.post(url, json=params)
+    else:
+        text = "No borrowings overdue today!"
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        params = {"chat_id": TELEGRAM_CHAT_ID, "text": text}
+        requests.post(url, json=params)
