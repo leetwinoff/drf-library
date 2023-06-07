@@ -1,1 +1,1 @@
-default_app_config = 'borrowing_service.apps.MyAppConfig'
+default_app_config = "borrowing_service.apps.MyAppConfig"

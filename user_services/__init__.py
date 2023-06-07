@@ -1,1 +1,1 @@
-default_app_config = 'user_services.apps.MyAppConfig'
+default_app_config = "user_services.apps.MyAppConfig"
