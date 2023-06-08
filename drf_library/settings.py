@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "book_service",
     "borrowing_service",
     "payment_service",
-    "django_q",
 ]
 
 MIDDLEWARE = [
