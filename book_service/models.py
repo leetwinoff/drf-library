@@ -3,17 +3,14 @@ from enum import Enum
 from django.db import models
 
 
-class CoverChoices(Enum):
-    HARD = "HARD"
-    SOFT = "SOFT"
-
-
 class Book(models.Model):
+    COVER_CHOICES = (
+        ("HARD", "HARD"),
+        ("SOFT", "SOFT"),
+    )
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
-    covers = models.CharField(
-        max_length=4, choices=[(cover.name, cover.value) for cover in CoverChoices]
-    )
+    covers = models.CharField(max_length=4, choices=COVER_CHOICES)
     inventory = models.PositiveIntegerField()
     daily_fee = models.DecimalField(max_digits=9, decimal_places=2)
 
