@@ -4,6 +4,7 @@ from django.utils.datetime_safe import date
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from book_service.models import Book
@@ -45,14 +46,14 @@ class BookViewSet(viewsets.ModelViewSet):
 
             borrowing = Borrowing.objects.create(
                 borrow=date.today(),
-                expected_return_date=date.today() + timedelta(days=1),
+                expected_return_date=date.today() + timedelta(days=7),
                 book_id=book,
                 user_id=user,
             )
             send_borrowing_notification(borrowing)
 
             return Response(
-                {"detail": "Book borrowed succesfully"}, status=status.HTTP_200_OK
+                {"detail": "Book borrowed successfully"}, status=status.HTTP_200_OK
             )
         return Response(
             {"detail": "Book is out of stock"}, status=status.HTTP_204_NO_CONTENT
@@ -60,5 +61,5 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == "borrow":
-            return []
+            return [IsAuthenticated()]
         return super().get_permissions()
