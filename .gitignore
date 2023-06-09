@@ -6,3 +6,4 @@ db.sqlite3
 celerybeat-schedule.db
 default.profraw
 dump.rdb
+.pytest_cache
