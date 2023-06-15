@@ -31,7 +31,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return Borrowing.objects.filter(user_id=user)
 
     @action(detail=False, methods=["POST"])
-    def borrow_book(self, request, pk=None):
+    def borrow(self, request, pk=None):
         serializer = BorrowSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         borrowing = serializer.save()
