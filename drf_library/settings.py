@@ -55,10 +55,10 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "rest_framework",
     "drf_spectacular",
-    "user_services",
-    "book_service",
-    "borrowing_service",
-    "payment_service",
+    "users",
+    "books",
+    "borrowings",
+    "payments",
 ]
 
 MIDDLEWARE = [
@@ -144,7 +144,7 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "user_services.User"
+AUTH_USER_MODEL = "users.User"
 
 
 REST_FRAMEWORK = {
@@ -187,7 +187,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 CELERY_BEAT_SCHEDULE = {
     "send_notification": {
-        "task": "borrowing_service.tasks.send_notification",
+        "task": "borrowings.tasks.send_notification",
         "schedule": crontab(minute=0, hour=12),
     },
 }
