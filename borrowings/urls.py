@@ -1,25 +1,30 @@
 from django.urls import path
 
-from borrowing_service.views import BorrowingViewSet
+from borrowings.views import BorrowingViewSet
 
 
 urlpatterns = [
     path(
-        "borrowings/",
+        "",
         BorrowingViewSet.as_view({"get": "list"}),
         name="borrowing_list",
     ),
     path(
-        "borrowings/borrow/",
+        "<int:pk>/",
+        BorrowingViewSet.as_view({"get": "retrieve"}),
+        name="borrowing_detail",
+    ),
+    path(
+        "borrow/",
         BorrowingViewSet.as_view({"post": "borrow"}),
         name="borrow",
     ),
     path(
-        "borrowings/<int:pk>/return/",
+        "<int:pk>/return/",
         BorrowingViewSet.as_view({"post": "return_book"}),
         name="return_book",
     ),
 ]
 
 
-app_name = "borrowing_service"
+app_name = "borrowings"

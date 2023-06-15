@@ -36,11 +36,11 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path("api/user/", include("user_services.urls", namespace="user")),
-    path("api/book_service/", include("book_service.urls", namespace="books")),
+    path("api/user/", include("users.urls", namespace="user")),
+    path("api/books/", include("books.urls", namespace="books")),
     path(
-        "api/borrowing_service/",
-        include("borrowing_service.urls", namespace="borrowing"),
+        "api/borrowings/",
+        include("borrowings.urls", namespace="borrowing"),
     ),
-    path("api/payment_service/", include("payment_service.urls", namespace="payments")),
+    path("api/payments/", include("payments.urls", namespace="payments")),
 ]
