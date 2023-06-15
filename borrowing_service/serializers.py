@@ -84,7 +84,7 @@ class ReturnBookSerializer(serializers.Serializer):
             daily_fee = borrowing.book_id.daily_fee
             borrowing_pay_amount = borrowing_days * daily_fee
         if borrowing_pay_amount == 0:
-            raise serializers.ValidationError("Book returned succesfully")
+            raise serializers.ValidationError("Book returned successfully")
         else:
             stripe.api_key = STRIPE_SECRET_KEY
 
@@ -115,7 +115,7 @@ class ReturnBookSerializer(serializers.Serializer):
                 session_url=session.url,
                 session_id=session.id,
                 money_to_pay=borrowing_pay_amount,
-                user=self.request.user,
+                user=self.context["request"].user,
             )
 
             payment.borrowing = borrowing
