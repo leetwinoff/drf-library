@@ -31,7 +31,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        borrowing = serializer.post(serializer.validated_data)
+        borrowing = serializer.create(serializer.validated_data)
         headers = self.get_success_headers(serializer.data)
         return Response(
             self.get_serializer(borrowing).data,
