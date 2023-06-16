@@ -13,12 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "password",
             "is_staff",
-            "borrowed_books",
         )
         read_only_fields = (
             "id",
             "is_staff",
-            "borrowed_books",
         )
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
