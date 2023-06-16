@@ -36,9 +36,6 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(_("email_address"), unique=True)
-    borrowed_books = models.ManyToManyField(
-        Book, related_name="borrowed_by", blank=True
-    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

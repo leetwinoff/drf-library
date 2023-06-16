@@ -6,7 +6,6 @@ from books.permissions import IsAdminOrReadOnly
 from borrowings.models import Borrowing
 
 from borrowings.serializers import (
-    BorrowingSerializer,
     ReturnBookSerializer,
     BorrowSerializer,
 )
@@ -14,15 +13,14 @@ from borrowings.serializers import (
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
-    serializer_class = BorrowingSerializer
+    serializer_class = BorrowSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == "return_book":
-            return ReturnBookSerializer
-        if self.action == "borrow_book":
+        if self.action in ["list", "create"]:
             return BorrowSerializer
-        return BorrowingSerializer
+        if self.action in ["retrieve", "return_book"]:
+            return ReturnBookSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -30,30 +28,26 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             return Borrowing.objects.all()
         return Borrowing.objects.filter(user_id=user)
 
-    @action(detail=False, methods=["POST"])
-    def borrow(self, request, pk=None):
-        serializer = BorrowSerializer(data=request.data, context={"request": request})
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        borrowing = serializer.save()
-
+        borrowing = serializer.create(serializer.validated_data)
+        headers = self.get_success_headers(serializer.data)
         return Response(
-            {"detail": "Book borrowed succesfully"}, status=status.HTTP_200_OK
+            self.get_serializer(borrowing).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
         )
 
     @action(detail=True, methods=["POST"])
-    def return_book(self, request, pk=None):
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True,
-        )
+    def return_book(self, request, *args, **kwargs):
+        borrowing = self.get_object()
+        serializer = self.get_serializer(borrowing, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        session_url = serializer.return_book()
-
-        return Response({"detail": session_url}, status=status.HTTP_200_OK)
+        serializer.save()
+        return Response(serializer.data)
 
     def get_permissions(self):
-        if self.action in ["borrow_book", "return_book"]:
+        if self.action in ["list", "create", "retrieve", "return_book"]:
             return []
         return super().get_permissions()

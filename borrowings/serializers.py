@@ -1,11 +1,11 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import stripe
 from django.utils import timezone
 from django.utils.datetime_safe import date
 from rest_framework import serializers
 
-
+from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from borrowings.telegram_helper import (
     send_borrowing_notification,
@@ -15,7 +15,7 @@ from drf_library.settings import STRIPE_SECRET_KEY
 from payments.models import Payment
 
 
-class BorrowingSerializer(serializers.ModelSerializer):
+class BorrowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = (
@@ -23,22 +23,21 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "borrow",
             "expected_return_date",
             "actual_return_date",
-            "book_id",
+            "book",
+            "user_id",
+            "is_active",
+        )
+        read_only_fields = (
+            "id",
+            "borrow",
+            "expected_return_date",
+            "actual_return_date",
             "user_id",
             "is_active",
         )
 
-
-class BorrowSerializer(BorrowingSerializer):
-    class Meta:
-        model = Borrowing
-        exclude = (
-            "actual_return_date",
-            "user_id",
-        )
-
     def create(self, validated_data):
-        book = validated_data["book_id"]
+        book = validated_data["book"]
         user = self.context["request"].user
 
         if book.inventory > 0:
@@ -47,14 +46,12 @@ class BorrowSerializer(BorrowingSerializer):
             ).exists():
                 raise serializers.ValidationError("You have already borrowed this book")
             book.inventory -= 1
-            user.borrowed_books.add(book)
             book.save()
-            user.save()
 
             borrowing = Borrowing.objects.create(
                 borrow=date.today(),
-                expected_return_date=date.today() + timedelta(days=7),
-                book_id=book,
+                expected_return_date=datetime.now() + timedelta(days=7),
+                book_id=book.id,
                 user_id=user,
             )
             send_borrowing_notification(borrowing)
@@ -63,12 +60,30 @@ class BorrowSerializer(BorrowingSerializer):
         raise serializers.ValidationError("Book is out of stock")
 
 
-class ReturnBookSerializer(serializers.Serializer):
+class ReturnBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
+        fields = (
+            "id",
+            "borrow",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user_id",
+            "is_active",
+        )
+        read_only_fields = (
+            "id",
+            "borrow",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user_id",
+            "is_active",
+        )
 
-    def return_book(self):
-        borrowing = self.instance
+    def update(self, instance, validated_data):
+        borrowing = instance
 
         if borrowing.actual_return_date is not None:
             raise serializers.ValidationError("Book has already been returned.")
@@ -81,8 +96,9 @@ class ReturnBookSerializer(serializers.Serializer):
         borrowing_pay_amount = 0
 
         if borrowing_days > 0:
-            daily_fee = borrowing.book_id.daily_fee
+            daily_fee = borrowing.book.daily_fee
             borrowing_pay_amount = borrowing_days * daily_fee
+
         if borrowing_pay_amount == 0:
             raise serializers.ValidationError("Book returned successfully")
         else:
