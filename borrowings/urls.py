@@ -1,30 +1,12 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from borrowings.views import BorrowingViewSet
 
+router = DefaultRouter()
+router.register("", BorrowingViewSet)
 
-urlpatterns = [
-    path(
-        "",
-        BorrowingViewSet.as_view({"get": "list"}),
-        name="borrowing_list",
-    ),
-    path(
-        "<int:pk>/",
-        BorrowingViewSet.as_view({"get": "retrieve"}),
-        name="borrowing_detail",
-    ),
-    path(
-        "borrow/",
-        BorrowingViewSet.as_view({"post": "borrow"}),
-        name="borrow",
-    ),
-    path(
-        "<int:pk>/return/",
-        BorrowingViewSet.as_view({"post": "return_book"}),
-        name="return_book",
-    ),
-]
+urlpatterns = router.urls
 
 
 app_name = "borrowings"
