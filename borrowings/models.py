@@ -13,7 +13,7 @@ class Borrowing(models.Model):
     )
     actual_return_date = models.DateTimeField(null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["actual_return_date"]
