@@ -15,6 +15,12 @@ from drf_library.settings import STRIPE_SECRET_KEY
 from payments.models import Payment
 
 
+class BorrowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = "__all__"
+
+
 class BorrowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
@@ -24,7 +30,7 @@ class BorrowSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user_id",
+            "user",
             "is_active",
         )
         read_only_fields = (
@@ -32,7 +38,7 @@ class BorrowSerializer(serializers.ModelSerializer):
             "borrow",
             "expected_return_date",
             "actual_return_date",
-            "user_id",
+            "user",
             "is_active",
         )
 
@@ -42,7 +48,7 @@ class BorrowSerializer(serializers.ModelSerializer):
 
         if book.inventory > 0:
             if Borrowing.objects.filter(
-                user_id=user, book_id=book, actual_return_date=None
+                user=user, book_id=book, actual_return_date=None
             ).exists():
                 raise serializers.ValidationError("You have already borrowed this book")
             book.inventory -= 1
@@ -52,7 +58,7 @@ class BorrowSerializer(serializers.ModelSerializer):
                 borrow=date.today(),
                 expected_return_date=datetime.now() + timedelta(days=7),
                 book_id=book.id,
-                user_id=user,
+                user=user,
             )
             send_borrowing_notification(borrowing)
 
@@ -69,7 +75,7 @@ class ReturnBookSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user_id",
+            "user",
             "is_active",
         )
         read_only_fields = (
@@ -78,7 +84,7 @@ class ReturnBookSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user_id",
+            "user",
             "is_active",
         )
 
