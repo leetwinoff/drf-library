@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from books.permissions import IsAdminOrReadOnly
@@ -8,6 +9,7 @@ from borrowings.models import Borrowing
 from borrowings.serializers import (
     ReturnBookSerializer,
     BorrowSerializer,
+    BorrowingSerializer,
 )
 
 
@@ -19,7 +21,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
             return BorrowSerializer
-        if self.action in ["retrieve", "return_book"]:
+        if self.action == "retrieve":
+            return BorrowingSerializer
+        if self.action == "return_book":
             return ReturnBookSerializer
 
     def get_queryset(self):
@@ -39,7 +43,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             headers=headers,
         )
 
-    @action(detail=True, methods=["POST"])
+    @action(detail=True, methods=["POST"], url_path="return")
     def return_book(self, request, *args, **kwargs):
         borrowing = self.get_object()
         serializer = self.get_serializer(borrowing, data=request.data, partial=True)
@@ -49,5 +53,5 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["list", "create", "retrieve", "return_book"]:
-            return []
+            return [IsAuthenticated()]
         return super().get_permissions()
