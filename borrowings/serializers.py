@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.utils.datetime_safe import date
 from rest_framework import serializers
 
-from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from borrowings.telegram_helper import (
     send_borrowing_notification,
